@@ -120,8 +120,9 @@ def populate_similarity_collection(collection, food_items: List[Dict]):
         metadatas.append({
             "name": food["food_name"],
             "cuisine_type": food.get("cuisine_type", "Unknown"),
+            "cuisine_type_lower": food.get("cuisine_type", "Unknown").lower(),
             "ingredients": ", ".join(food.get("food_ingredients", [])),
-            "calories": food.get("food_calories_per_serving", 0),
+            "calories": int(food.get("food_calories_per_serving", 0)),
             "description": food.get("food_description", ""),
             "cooking_method": food.get("cooking_method", ""),
             "health_benefits": food.get("food_health_benefits", ""),
@@ -160,7 +161,6 @@ def perform_similarity_search(collection, query: str, n_results: int = 5) -> Lis
                 'cuisine_type': results['metadatas'][0][i]['cuisine_type'],
                 'food_calories_per_serving': results['metadatas'][0][i]['calories'],
                 'similarity_score': similarity_score,
-                'distance': results['distances'][0][i]
             }
             formatted_results.append(result)
         
@@ -178,9 +178,10 @@ def perform_filtered_similarity_search(collection, query: str, cuisine_filter: s
     # Build filters list
     filters = []
     if cuisine_filter:
-        filters.append({"cuisine_type": cuisine_filter})
+        # Case-insensitive match via the lowercase metadata field
+        filters.append({"cuisine_type_lower": cuisine_filter.lower()})
     
-    if max_calories:
+    if max_calories is not None:
         filters.append({"calories": {"$lte": max_calories}})
     
     # Construct where clause based on number of filters
@@ -210,7 +211,6 @@ def perform_filtered_similarity_search(collection, query: str, cuisine_filter: s
                 'cuisine_type': results['metadatas'][0][i]['cuisine_type'],
                 'food_calories_per_serving': results['metadatas'][0][i]['calories'],
                 'similarity_score': similarity_score,
-                'distance': results['distances'][0][i]
             }
             formatted_results.append(result)
         

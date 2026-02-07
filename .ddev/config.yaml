@@ -1,0 +1,7 @@
+name: savoryai
+type: php
+docroot: frontend
+webserver_type: nginx-fpm
+nodejs_version: "20"
+router_http_port: "8081"
+router_https_port: "8444"
